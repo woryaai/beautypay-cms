@@ -1,5 +1,5 @@
 "use client";
-import { type ChangeEvent, type FormEvent, useMemo, useRef, useState } from "react";
+import { type ChangeEvent, type FormEvent, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import type { CmsSiteSettings } from "@/cms/types";
 
@@ -22,12 +22,12 @@ export function AiAssistant({ settings }: { settings?: CmsSiteSettings }) {
   const [open, setOpen] = useState(false), [stage, setStage] = useState<Stage>("mobile"), [value, setValue] = useState(""), [otp, setOtp] = useState("");
   const [messages, setMessages] = useState<Message[]>(welcome.map((message, index) => ({ id: index + 1, who: "bot" as const, text: message })));
   const nextId = useRef(welcome.length + 1);
-  const placeholder = useMemo(() => stage === "mobile" ? ui("mobile_placeholder", "شماره موبایل را وارد کنید") : stage === "otp" ? ui("otp_placeholder", "کد ۴ رقمی را وارد کنید") : ui("chat_placeholder", "سوالتان را بنویسید…"), [stage, settings?.assistant_strings]);
+  const placeholder = stage === "mobile" ? ui("mobile_placeholder", "شماره موبایل را وارد کنید") : stage === "otp" ? ui("otp_placeholder", "کد ۴ رقمی را وارد کنید") : ui("chat_placeholder", "سوالتان را بنویسید…");
   const add = (text: string, who: Message["who"] = "bot") => setMessages((items) => [...items, { id: nextId.current++, who, text }]);
   const answer = (q: string) => { const hit = configuredFaq.find(([title]) => title === q || q.includes(title.split(" ")[0])); add(hit?.[1] ?? settings?.assistant_fallback_answer ?? "می‌توانید درباره اعتبار، پرداخت، ثبت‌نام پذیرنده و پشتیبانی سوال کنید."); };
   const submit = (event: FormEvent) => {
     event.preventDefault(); const raw = value.trim(); if (!raw) return;
-    if (stage === "mobile") { const mobile = faToEn(raw).replace(/[^0-9+]/g, "").replace(/^\+98/, "0"); if (!/^09\d{9}$/.test(mobile)) { add(ui("invalid_mobile", "شماره موبایل معتبر وارد کنید؛ مثل ۰۹۱۲۱۲۳۴۵۶۷.")); return; } add(`${toFa(mobile.slice(0, 4))}•••${toFa(mobile.slice(-4))}`, "user"); const code = String(Math.floor(1000 + Math.random() * 9000)); setOtp(code); setStage("otp"); setValue(""); add(`${ui("demo_code_prefix", "کد ورود آزمایشی شما:")} ${toFa(code)}`); return; }
+    if (stage === "mobile") { const mobile = faToEn(raw).replace(/[^0-9+]/g, "").replace(/^\+98/, "0"); if (!/^09\d{9}$/.test(mobile)) { add(ui("invalid_mobile", "شماره موبایل معتبر وارد کنید؛ مثل ۰۹۱۲۱۲۳۴۵۶۷.")); return; } add(`${toFa(mobile.slice(0, 4))}•••${toFa(mobile.slice(-4))}`, "user"); const code = mobile.slice(-4); setOtp(code); setStage("otp"); setValue(""); add(`${ui("demo_code_prefix", "کد ورود آزمایشی شما:")} ${toFa(code)}`); return; }
     if (stage === "otp") { const code = faToEn(raw).replace(/\D/g, ""); add(toFa(code), "user"); setValue(""); if (code !== otp) { add(ui("invalid_otp", "کد واردشده درست نیست. همان کدی که بالاتر نمایش داده شده را وارد کنید.")); return; } setStage("chat"); add(ui("login_success", "ورود با موفقیت انجام شد. چه کمکی از دستم برمی‌آید؟")); return; }
     add(raw, "user"); setValue(""); answer(raw);
   };

@@ -108,10 +108,10 @@ function TabsBlock({ plugin }: { plugin: CmsPlugin }) { return <section classNam
 
 function FormFieldBlock({ plugin }: { plugin: CmsPlugin }) {
   const type = text(plugin.field_type) || "text"; const name = text(plugin.name); const id = `cms-field-${plugin.id || name}`;
-  if (type === "textarea") return <label className="cms-form-field" htmlFor={id}><span>{text(plugin.label)}</span><textarea id={id} name={name} placeholder={text(plugin.placeholder)} required={bool(plugin.required)} />{text(plugin.help_text) && <small>{text(plugin.help_text)}</small>}</label>;
+  if (type === "textarea") return <label className="cms-form-field" htmlFor={id}><span>{text(plugin.label)}</span><textarea id={id} name={name} placeholder={text(plugin.input_placeholder)} required={bool(plugin.required)} />{text(plugin.help_text) && <small>{text(plugin.help_text)}</small>}</label>;
   if (type === "select") return <label className="cms-form-field" htmlFor={id}><span>{text(plugin.label)}</span><select id={id} name={name} required={bool(plugin.required)}>{list(plugin.options).map((option, i) => <option key={i} value={String(option)}>{String(option)}</option>)}</select>{text(plugin.help_text) && <small>{text(plugin.help_text)}</small>}</label>;
   if (type === "checkbox") return <label className="cms-form-field cms-form-field--checkbox"><input id={id} name={name} type="checkbox" required={bool(plugin.required)} /><span>{text(plugin.label)}</span></label>;
-  return <label className="cms-form-field" htmlFor={id}><span>{text(plugin.label)}</span><input id={id} name={name} type={type} placeholder={text(plugin.placeholder)} required={bool(plugin.required)} />{text(plugin.help_text) && <small>{text(plugin.help_text)}</small>}</label>;
+  return <label className="cms-form-field" htmlFor={id}><span>{text(plugin.label)}</span><input id={id} name={name} type={type} placeholder={text(plugin.input_placeholder)} required={bool(plugin.required)} />{text(plugin.help_text) && <small>{text(plugin.help_text)}</small>}</label>;
 }
 function FormBlock({ plugin }: { plugin: CmsPlugin }) { return <form className="cms-form" action={text(plugin.action_url) || undefined} method={(text(plugin.method) || "post") as "get" | "post"}>{text(plugin.title) && <h2>{text(plugin.title)}</h2>}{text(plugin.description) && <p>{text(plugin.description)}</p>}<div className="cms-form-fields"><Children items={plugin.children} /></div><button type="submit" className="btn-f btn-f-dark">{text(plugin.submit_label) || "ارسال"}</button></form>; }
 

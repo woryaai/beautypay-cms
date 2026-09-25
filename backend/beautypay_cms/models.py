@@ -202,7 +202,7 @@ class FormField(CMSPlugin):
     name = models.SlugField(max_length=120)
     label = models.CharField(max_length=200)
     field_type = models.CharField(max_length=20, choices=FIELD_TYPES, default="text")
-    placeholder = models.CharField(max_length=240, blank=True)
+    input_placeholder = models.CharField(max_length=240, blank=True)
     required = models.BooleanField(default=False)
     options = models.JSONField(default=list, blank=True)
     help_text = models.CharField(max_length=300, blank=True)
