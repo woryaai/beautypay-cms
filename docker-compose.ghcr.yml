@@ -1,0 +1,47 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-beautypay}
+      POSTGRES_USER: ${POSTGRES_USER:-beautypay}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  cms:
+    image: ghcr.io/woryaai/beautypay-cms-backend:latest
+    restart: unless-stopped
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Set DJANGO_SECRET_KEY}
+      DJANGO_DEBUG: "0"
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,cms}
+      DJANGO_CORS_ALLOWED_ORIGINS: ${DJANGO_CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+      DJANGO_CSRF_TRUSTED_ORIGINS: ${DJANGO_CSRF_TRUSTED_ORIGINS:-http://localhost:3000,http://localhost:8000}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-beautypay}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-beautypay}
+      DJANGO_SECURE_COOKIES: ${DJANGO_SECURE_COOKIES:-0}
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    volumes:
+      - cms_media:/app/media
+    command: sh -c "python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60"
+
+  frontend:
+    image: ghcr.io/woryaai/beautypay-cms-frontend:latest
+    restart: unless-stopped
+    environment:
+      CMS_ENABLED: "1"
+      CMS_API_URL: http://cms:8000/api/cms
+      CMS_LANGUAGE: ${CMS_LANGUAGE:-fa}
+      CMS_REVALIDATE_SECONDS: ${CMS_REVALIDATE_SECONDS:-60}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+    depends_on:
+      - cms
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:
+  cms_media:

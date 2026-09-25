@@ -132,4 +132,4 @@ turns CMS consumption off entirely.
 
 ## License / ownership
 
-Business project for BeautyPay / Finow. No open-source license is granted unless explicitly added by the repository owner.
+Private business project for BeautyPay / Finow. Add your organization-specific license and contributor policy before public distribution.

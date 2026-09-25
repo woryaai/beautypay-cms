@@ -1,1 +1,0 @@
-repository write authorization confirmed

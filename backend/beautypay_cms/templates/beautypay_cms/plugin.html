@@ -1,0 +1,6 @@
+<div class="beautypay-cms-plugin" data-plugin="{{ instance.plugin_type }}">
+  {% if instance.title %}<strong>{{ instance.title }}</strong>{% endif %}
+  {% if instance.body %}<div>{{ instance.body|safe }}</div>{% endif %}
+  {% if instance.text %}<div>{{ instance.text }}</div>{% endif %}
+  {% if instance.image %}<img src="{{ instance.image.url }}" alt="{{ instance.alt|default:instance.image_alt }}" style="max-width:100%;height:auto" />{% endif %}
+</div>

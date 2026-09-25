@@ -1,0 +1,51 @@
+export const pageLoaders = {
+  "": () => import("./pages/home"),
+  "about": () => import("./pages/about"),
+  "accelerate": () => import("./pages/accelerate"),
+  "app": () => import("./pages/app"),
+  "blog-article": () => import("./pages/blog-article"),
+  "blog": () => import("./pages/blog"),
+  "booking": () => import("./pages/booking"),
+  "business-salon": () => import("./pages/business-salon"),
+  "business": () => import("./pages/business"),
+  "career-detail": () => import("./pages/career-detail"),
+  "careers": () => import("./pages/careers"),
+  "commission": () => import("./pages/commission"),
+  "connect": () => import("./pages/connect"),
+  "disclaimer": () => import("./pages/disclaimer"),
+  "events": () => import("./pages/events"),
+  "features": () => import("./pages/features"),
+  "financial-terms": () => import("./pages/financial-terms"),
+  "gift-card": () => import("./pages/gift-card"),
+  "help-article": () => import("./pages/help-article"),
+  "help": () => import("./pages/help"),
+  "marketplace": () => import("./pages/marketplace"),
+  "payments": () => import("./pages/payments"),
+  "pos": () => import("./pages/pos"),
+  "pricing": () => import("./pages/pricing"),
+  "safe-choice": () => import("./pages/safe-choice"),
+  "search": () => import("./pages/search"),
+  "shop": () => import("./pages/shop"),
+  "supplier-product-bty-bed-p5": () => import("./pages/supplier-product-bty-bed-p5"),
+  "supplier-product-bty-las-d1200": () => import("./pages/supplier-product-bty-las-d1200"),
+  "supplier-product-bty-skin-ai10": () => import("./pages/supplier-product-bty-skin-ai10"),
+  "supplier-product-con-nitr-10k": () => import("./pages/supplier-product-con-nitr-10k"),
+  "supplier-product-den-auto-b23": () => import("./pages/supplier-product-den-auto-b23"),
+  "supplier-product-den-scaler-u6": () => import("./pages/supplier-product-den-scaler-u6"),
+  "supplier-product-den-unit-ax7": () => import("./pages/supplier-product-den-unit-ax7"),
+  "supplier-product-med-bed-e4": () => import("./pages/supplier-product-med-bed-e4"),
+  "supplier-product-med-mon-v8": () => import("./pages/supplier-product-med-mon-v8"),
+  "supplier-product-med-roll-80": () => import("./pages/supplier-product-med-roll-80"),
+  "supplier-product-wel-mass-r7": () => import("./pages/supplier-product-wel-mass-r7"),
+  "supplier-product-wel-tread-x9": () => import("./pages/supplier-product-wel-tread-x9"),
+  "suppliers": () => import("./pages/suppliers"),
+  "terms": () => import("./pages/terms"),
+  "venue": () => import("./pages/venue"),
+} as const;
+
+export const pageRoutes = Object.keys(pageLoaders);
+
+export async function loadPage(route: string) {
+  const loader = pageLoaders[route as keyof typeof pageLoaders];
+  return loader ? loader() : null;
+}

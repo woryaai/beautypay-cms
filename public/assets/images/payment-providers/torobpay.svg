@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 88" role="img" aria-labelledby="t d">
+<title id="t">ترب‌پی</title><desc id="d">لوگوی نوشتاری ترب‌پی</desc>
+<rect width="260" height="88" rx="22" fill="#fff0f3"/>
+<circle cx="43" cy="44" r="25" fill="#e31f3d"/>
+<path d="M32 44h22M43 33v22" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+<text x="78" y="39" font-family="Arial,sans-serif" font-size="18" font-weight="800" fill="#e31f3d">TOROBPAY</text>
+<text x="78" y="62" font-family="Tahoma,Arial,sans-serif" font-size="16" font-weight="700" fill="#332942">ترب‌پی</text>
+</svg>
