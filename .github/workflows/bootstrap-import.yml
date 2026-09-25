@@ -35,12 +35,15 @@ jobs:
           set -euo pipefail
           tmpdir="$(mktemp -d)"
           unzip -q /tmp/beautypay-cms.zip -d "$tmpdir"
+          cp .github/workflows/bootstrap-import.yml /tmp/bootstrap-import.yml
           find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
           cp -a "$tmpdir"/. .
           find . -type d -name __pycache__ -prune -exec rm -rf {} +
           find . -type f -name '*.pyc' -delete
           rm -rf .bootstrap
-          rm -f .github/workflows/bootstrap-import.yml
+          rm -rf .github/workflows
+          mkdir -p .github/workflows
+          cp /tmp/bootstrap-import.yml .github/workflows/bootstrap-import.yml
 
       - name: Validate imported source
         shell: bash
@@ -54,8 +57,6 @@ jobs:
           test -f backend/Dockerfile
           test -f backend/requirements.txt
           test -f docs/INSTALLATION-FA.md
-          test -f .github/workflows/ci.yml
-          test -f .github/workflows/docker-publish.yml
           node scripts/validate-static.mjs
 
       - name: Commit complete project
