@@ -1,0 +1,119 @@
+name: Bootstrap BeautyPay CMS repository
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootstrap-import.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  import-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout staging repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Rebuild and verify project bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(find .bootstrap -maxdepth 1 -name 'part-*.b64' | wc -l)" -eq 21
+          cat .bootstrap/part-*.b64 | tr -d '\r\n ' | base64 --decode > /tmp/beautypay-cms.zip
+          echo '772008b8e18b68e4b54e0e88b517e00291b6cdf007dfc9902b57e7ebdc4b8211  /tmp/beautypay-cms.zip' | sha256sum -c -
+          unzip -tq /tmp/beautypay-cms.zip
+
+      - name: Replace staging tree with full project
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmpdir="$(mktemp -d)"
+          unzip -q /tmp/beautypay-cms.zip -d "$tmpdir"
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a "$tmpdir"/. .
+          find . -type d -name __pycache__ -prune -exec rm -rf {} +
+          find . -type f -name '*.pyc' -delete
+          rm -rf .bootstrap
+          rm -f .github/workflows/bootstrap-import.yml
+
+      - name: Validate imported source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f package.json
+          test -f Dockerfile
+          test -f docker-compose.yml
+          test -f docker-compose.ghcr.yml
+          test -f backend/manage.py
+          test -f backend/Dockerfile
+          test -f backend/requirements.txt
+          test -f docs/INSTALLATION-FA.md
+          test -f .github/workflows/ci.yml
+          test -f .github/workflows/docker-publish.yml
+          node scripts/validate-static.mjs
+
+      - name: Commit complete project
+        id: final_commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'feat: import complete BeautyPay Next.js + django CMS project'
+          git push origin HEAD:main
+          echo "sha=$(git rev-parse --short=12 HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and publish frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/beautypay-cms-frontend:latest
+            ghcr.io/${{ github.repository_owner }}/beautypay-cms-frontend:sha-${{ steps.final_commit.outputs.sha }}
+          build-args: |
+            CMS_API_URL=http://cms:8000/api/cms
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and publish backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/beautypay-cms-backend:latest
+            ghcr.io/${{ github.repository_owner }}/beautypay-cms-backend:sha-${{ steps.final_commit.outputs.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Job summary
+        shell: bash
+        run: |
+          {
+            echo '## BeautyPay CMS bootstrap complete'
+            echo ''
+            echo '- Full source imported and committed to main.'
+            echo '- Frontend image: `ghcr.io/${{ github.repository_owner }}/beautypay-cms-frontend:latest`'
+            echo '- Backend image: `ghcr.io/${{ github.repository_owner }}/beautypay-cms-backend:latest`'
+            echo '- Compose: `docker compose -f docker-compose.ghcr.yml up -d`'
+          } >> "$GITHUB_STEP_SUMMARY"
